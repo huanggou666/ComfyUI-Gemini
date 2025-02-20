@@ -20,6 +20,22 @@ def get_gemini_api_key():
         return ""
     return api_key
 
+# 添加版本检查和兼容性处理
+def check_python_version():
+    import sys
+    version = sys.version_info
+    if version.major == 3 and version.minor >= 12:
+        # 对于Python 3.12及以上版本，设置特定的环境变量或配置
+        os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
+        
+        # 如果需要，可以添加其他特定版本的配置
+        if version.minor == 12 and version.micro >= 8:
+            # 针对3.12.8的特殊处理
+            os.environ['PYTHONPATH'] = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + os.pathsep + os.environ.get('PYTHONPATH', '')
+
+# 在模块开始时调用版本检查
+check_python_version()
+
 class Gemini_API_Zho:
 
     def __init__(self, api_key=None):
@@ -413,11 +429,6 @@ class Gemini_API_S_Chat_Zho:
         if not self.chat:
             model = genai.GenerativeModel(model_name)
             self.chat = model.start_chat(history=[])
-
-        if model_name == 'gemini-pro':
-            response = self.chat.send_message(prompt)
-            textoutput = response.text
-            chat_history = self.format_chat_history(self.chat)
 
         if model_name == 'gemini-1.5-pro-latest':
             if image == None:
